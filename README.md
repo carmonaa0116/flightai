@@ -126,13 +126,6 @@ Si quieres contribuir:
 
 ## 📄 Licencia
 
-Este repositorio no incluye un archivo `LICENSE`. Añade una licencia (por ejemplo MIT) si quieres permitir contribuciones externas y uso libre.
+Este repositorio incluye un archivo `LICENSE`. Se permiten contribuciones externas y uso libre.
 
 ---
-
-Si quieres, puedo además:
-- Añadir un archivo `LICENSE` (MIT)
-- Configurar un `Makefile` o `tasks.json` para comandos comunes
-- Añadir un ejemplo de `workflow` de GitHub Actions para ejecutar tests
-
-¿Qué prefieres que agregue ahora? 🚀
