@@ -1,131 +1,209 @@
-# FlightAI ✈️
+# ✈️ FlightAI -- Práctica 1 + 2: Múltiples Herramientas
 
-**FlightAI** es un chatbot de ejemplo que demuestra cómo integrar llamadas a funciones (function calling) con el SDK de Gemini (Google Generative AI). El bot responde preguntas sobre precios de billetes a distintas ciudades usando una función interna `get_ticket_price`.
+Asistente de aerolínea con **Function Calling** usando Google Gemini.
 
----
+## 🎯 Funcionalidades
 
-## ✅ Qué contiene este repositorio
+### Práctica 1: Consulta de Precios
 
-- Código del chatbot: `main.py` (loop interactivo con Gemini)
-- Lógica de llamadas a herramientas: `tool_schema.py` y `handler.py`
-- Datos de ejemplo de precios: `tools.py`
-- Tests simples por módulo: `test_*.py`
-- Archivo de dependencias: `requirements.txt`
-- `.gitignore` ya incluido (configurado para Python/VSCode/venv)
+-   Consultar precios de billetes a diferentes ciudades
+-   Ciudades disponibles: `London`, `Paris`, `Tokyo`, `Berlin`
 
----
+### Práctica 2: Consulta de Estados de Vuelos
 
-## 🔧 Requisitos
+-   Consultar el estado de vuelos en tiempo real
+-   Vuelos disponibles: `FA101`, `FA202`, `FA303`, `FA404`
 
-- Python 3.10+ recomendado
-- Acceso a la API de Gemini (clave en `GEMINI_API_KEY`)
-- Dependencias del proyecto:
+------------------------------------------------------------------------
 
-```bash
+## 📋 Pruebas del Sistema
+
+### 🧪 PRÁCTICA 1
+
+#### 1. Prueba de Éxito (Berlin)
+
+``` text
+You: How much is a ticket to Berlin?
+
+🔧 Tool get_ticket_price called
+FlightAI: A return ticket to Berlin costs $499.
+```
+
+#### 2. Prueba de Dato No Disponible (Madrid)
+
+``` text
+You: How much is a ticket to Madrid?
+
+🔧 Tool get_ticket_price called
+FlightAI: I'm sorry, I don't have price information for Madrid.
+```
+
+#### 3. Prueba de Personalidad
+
+``` text
+You: Who are you?
+
+FlightAI: I am a helpful assistant for an Airline called FlightAI.
+```
+
+------------------------------------------------------------------------
+
+### 🧪 PRÁCTICA 2
+
+#### 4. Prueba de Regresión (Tokyo)
+
+``` text
+You: How much is a ticket to Tokyo?
+
+🔧 Tool get_ticket_price called
+FlightAI: A return ticket to Tokyo costs $1400.
+```
+
+#### 5. Nueva Funcionalidad (FA202)
+
+``` text
+You: Is flight FA202 on time?
+
+🔧 Tool get_flight_status called
+FlightAI: No, flight FA202 is delayed 2 hours.
+```
+
+#### 6. Prueba Combinada (Avanzada)
+
+``` text
+You: Check the status of flight FA303 and tell me the price to Berlin.
+
+🔧 Tool get_flight_status called
+🔧 Tool get_ticket_price called
+FlightAI: Flight FA303 is cancelled. A ticket to Berlin costs $499.
+```
+
+------------------------------------------------------------------------
+
+## 🚀 Instalación
+
+``` bash
+# 1. Instalar dependencias
 pip install -r requirements.txt
-```
 
----
+# 2. Configurar API Key
+echo "GEMINI_API_KEY=tu_api_key" > .env
 
-## 🛠️ Instalación y configuración rápida
+# 3. Ejecutar tests
+python run_all_tests.py
 
-1. Clona el repositorio:
-
-```bash
-git clone https://github.com/tuusuario/flightai.git
-cd flightai
-```
-
-2. Crea y activa un entorno virtual:
-
-Windows (PowerShell):
-```powershell
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-```
-
-Linux / macOS:
-```bash
-python -m venv .venv
-source .venv/bin/activate
-```
-
-3. Instala dependencias:
-
-```bash
-pip install -r requirements.txt
-```
-
-4. Crea un archivo `.env` en la raíz con tu API key (no subirlo a GitHub):
-
-```
-GEMINI_API_KEY=tu_api_key_aqui
-```
-
-> ⚠️ Nunca subas tu `.env` o claves a GitHub. `.gitignore` ya excluye `.env`.
-
----
-
-## ▶️ Uso
-
-Ejecuta el chatbot interactivo:
-
-```bash
+# 4. Ejecutar chatbot
 python main.py
 ```
 
-- Escribe preguntas en español (por ejemplo: "¿Cuánto cuesta un vuelo a París?")
-- Escribe `salir` para terminar la sesión
+------------------------------------------------------------------------
 
-El flujo es:
-- El prompt del sistema guía a Gemini (ver `SYSTEM_PROMPT` en `main.py`)
-- Gemini puede decidir llamar a la función `get_ticket_price`
-- `handler.py` ejecuta la función (usa `tools.get_ticket_price`) y devuelve el resultado
+## 📁 Estructura del Proyecto
 
----
-
-## 🧪 Cómo ejecutar los tests
-
-Los tests están diseñados como scripts ejecutables. Puedes ejecutarlos individualmente:
-
-```bash
-python test_tool_schema.py
-python test_tools.py
-python test_handler.py
-python test_main.py
+``` text
+flightai/
+│
+├── tools.py               # Base de datos + funciones (precios + vuelos)
+├── test_tools.py
+│
+├── tool_schema.py         # Schemas de ambas herramientas
+├── test_tool_schema.py
+│
+├── handler.py             # Manejador con if/elif dinámico
+├── test_handler.py
+│
+├── main.py                # Chat integrado
+├── test_main.py
+│
+├── .env
+├── requirements.txt
+├── run_all_tests.py
+└── README.md
 ```
 
-Si prefieres usar pytest, instala `pytest` y ejecuta:
+------------------------------------------------------------------------
 
-```bash
-pip install pytest
-pytest
+## 🎯 Datos Disponibles
+
+### 💰 Precios de Billetes
+
+  Ciudad   Precio
+  -------- --------
+  London   \$799
+  Paris    \$899
+  Tokyo    \$1400
+  Berlin   \$499
+
+### ✈️ Estados de Vuelos
+
+  Vuelo   Estado
+  ------- -----------------
+  FA101   On Time
+  FA202   Delayed 2 hours
+  FA303   Cancelled
+  FA404   Boarding
+
+------------------------------------------------------------------------
+
+## 🔍 Diferencias Técnicas: OpenAI vs Gemini
+
+### Registro de Herramientas
+
+**OpenAI**
+
+``` python
+tools = [
+    {"type": "function", "function": price_function},
+    {"type": "function", "function": status_function}
+]
 ```
 
-> Nota: Los tests son simples y comprueban importaciones, estructura del schema y comportamiento básico de `get_ticket_price`.
+**Gemini**
 
----
+``` python
+tools = [
+    Tool(
+        function_declarations=[
+            get_ticket_price_func,
+            get_flight_status_func
+        ]
+    )
+]
+```
 
-## 💡 Desarrollo y contribuciones
+------------------------------------------------------------------------
 
-- Añade nuevas ciudades o mejora la base de datos de precios en `tools.py`.
-- Extiende `tool_schema.py` si quieres exponer más funciones a Gemini.
-- Agrega tests para nuevos comportamientos.
+### Handler Dinámico
 
-Si quieres contribuir:
-- Haz fork, crea una rama (`feature/mi-cambio`), añade tests y abre un pull request.
+``` python
+def handle_tool_call(tool_call):
+    function_name = tool_call.name
 
----
+    if function_name == "get_ticket_price":
+        pass
+    elif function_name == "get_flight_status":
+        pass
+```
 
-## 🔐 Consideraciones de seguridad
+------------------------------------------------------------------------
 
-- Mantén la clave de Gemini en variables de entorno (`.env`) y **no** la subas al repo.
-- Revisa límites y facturación de la API de Gemini antes de usarla en producción.
+## 📚 Referencias
 
----
+-   [Google Gemini API](https://ai.google.dev/)
+-   [Function Calling](https://ai.google.dev/docs/function_calling)
+-   Práctica 1: `Practica_Vuelo_01.pdf`
+-   Práctica 2: `Practica_Vuelo_02.pdf`
 
-## 📄 Licencia
+------------------------------------------------------------------------
 
-Este repositorio incluye un archivo `LICENSE`. Se permiten contribuciones externas y uso libre.
+## ▶️ Ejecutar Tests
 
----
+``` bash
+python run_all_tests.py
+```
+
+Salida esperada:
+
+``` text
+🎉 TODOS LOS TESTS PASARON
+```

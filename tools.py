@@ -1,122 +1,37 @@
-
-# Base de datos simulada de precios de billetes
+# Base de datos ficticia de precios
 ticket_prices = {
-    "london": "$799", "londres": "$799",
-    "paris": "$899", "parís": "$899",
-    "tokyo": "$1400", "tokio": "$1400",
-    "berlin": "$499", "berlín": "$499",
-    "madrid": "$650", "madrid": "$650",
-    "rome": "$720", "roma": "$720",
-    "new york": "$1100", "nueva york": "$1100",
-    "los angeles": "$1050", "los ángeles": "$1050",
-    "barcelona": "$680", "barcelona": "$680",
-    "amsterdam": "$750", "ámsterdam": "$750",
-    "dubai": "$1300", "dubái": "$1300",
-    "sydney": "$1500", "sídney": "$1500",
-    "toronto": "$980", "toronto": "$980",
-    "beijing": "$1250", "pekín": "$1250",
-    "moscow": "$900", "moscú": "$900",
-    "lisbon": "$610", "lisboa": "$610",
-    "vienna": "$770", "viena": "$770",
-    "prague": "$540", "praga": "$540",
-    "athens": "$700", "atenas": "$700",
-    "istanbul": "$820", "estambul": "$820",
-
-    "brussels": "$560", "bruselas": "$560",
-    "zurich": "$780", "zúrich": "$780",
-    "geneva": "$770", "ginebra": "$770",
-    "munich": "$520", "múnich": "$520",
-    "hamburg": "$510", "hamburgo": "$510",
-    "copenhagen": "$690", "copenhague": "$690",
-    "stockholm": "$720", "estocolmo": "$720",
-    "oslo": "$740", "oslo": "$740",
-    "helsinki": "$760", "helsinki": "$760",
-    "budapest": "$530", "budapest": "$530",
-    "warsaw": "$520", "varsovia": "$520",
-    "bucharest": "$540", "bucarest": "$540",
-    "sofia": "$520", "sofía": "$520",
-    "zagreb": "$500", "zagreb": "$500",
-    "belgrade": "$510", "belgrado": "$510",
-    "dublin": "$650", "dublín": "$650",
-    "edinburgh": "$680", "edimburgo": "$680",
-    "manchester": "$640", "manchester": "$640",
-    "glasgow": "$670", "glasgow": "$670",
-    "birmingham": "$630", "birmingham": "$630",
-    "marseille": "$640", "marsella": "$640",
-    "lyon": "$630", "lyon": "$630",
-    "nice": "$650", "niza": "$650",
-    "toulouse": "$620", "toulouse": "$620",
-    "bordeaux": "$620", "burdeos": "$620",
-
-    "venice": "$710", "venecia": "$710",
-    "florence": "$700", "florencia": "$700",
-    "milan": "$690", "milán": "$690",
-    "naples": "$720", "nápoles": "$720",
-    "palermo": "$730", "palermo": "$730",
-    "seville": "$600", "sevilla": "$600",
-    "valencia": "$590", "valencia": "$590",
-    "malaga": "$580", "málaga": "$580",
-    "bilbao": "$600", "bilbao": "$600",
-    "granada": "$590", "granada": "$590",
-
-    "miami": "$1020", "miami": "$1020",
-    "chicago": "$980", "chicago": "$980",
-    "houston": "$960", "houston": "$960",
-    "san francisco": "$1100", "san francisco": "$1100",
-    "seattle": "$1080", "seattle": "$1080",
-    "boston": "$1000", "boston": "$1000",
-    "washington": "$990", "washington": "$990",
-    "atlanta": "$970", "atlanta": "$970",
-    "las vegas": "$1040", "las vegas": "$1040",
-    "orlando": "$1010", "orlando": "$1010",
-
-    "mexico city": "$950", "ciudad de méxico": "$950",
-    "cancun": "$920", "cancún": "$920",
-    "bogota": "$930", "bogotá": "$930",
-    "lima": "$940", "lima": "$940",
-    "santiago": "$980", "santiago": "$980",
-    "buenos aires": "$990", "buenos aires": "$990",
-    "rio de janeiro": "$970", "río de janeiro": "$970",
-    "sao paulo": "$960", "são paulo": "$960",
-    "caracas": "$920", "caracas": "$920",
-    "quito": "$930", "quito": "$930",
-
-    "cape town": "$1150", "ciudad del cabo": "$1150",
-    "johannesburg": "$1100", "johannesburgo": "$1100",
-    "nairobi": "$1050", "nairobi": "$1050",
-    "cairo": "$880", "el cairo": "$880",
-    "casablanca": "$760", "casablanca": "$760",
-    "marrakech": "$750", "marrakech": "$750",
-    "tunis": "$740", "túnez": "$740",
-    "bangkok": "$1300", "bangkok": "$1300",
-    "singapore": "$1350", "singapur": "$1350",
-    "kuala lumpur": "$1280", "kuala lumpur": "$1280",
-    "jakarta": "$1320", "yakarta": "$1320",
-    "manila": "$1340", "manila": "$1340",
-    "seoul": "$1380", "seúl": "$1380",
-    "hong kong": "$1360", "hong kong": "$1360",
-    "taipei": "$1330", "taipéi": "$1330",
-    "shanghai": "$1300", "shanghái": "$1300",
-    "delhi": "$1200", "nueva delhi": "$1200",
-    "mumbai": "$1180", "mumbai": "$1180",
-    "bangalore": "$1190", "bangalore": "$1190",
-    "auckland": "$1520", "auckland": "$1520",
-    "melbourne": "$1480", "melbourne": "$1480",
-    "brisbane": "$1460", "brisbane": "$1460",
-    "perth": "$1470", "perth": "$1470",
-    "doha": "$1290", "doha": "$1290",
-    "riyadh": "$1200", "riad": "$1200",
-    "tel aviv": "$950", "tel aviv": "$950",
-    "amman": "$920", "ammán": "$920",
-    "beirut": "$910", "beirut": "$910"
+    "london": "$799",
+    "paris": "$899",
+    "tokyo": "$1400",
+    "berlin": "$499"
 }
 
-
-
-def get_ticket_price(destination_city: str) -> str:
-
-    # Convertir a minúsculas para hacer la búsqueda case-insensitive
-    city = destination_city.lower()
+# Función para obtener el precio del billete
+def get_ticket_price(destination_city):
+    """
+    Obtiene el precio de un billete de vuelta a la ciudad de destino.
     
-    # Buscar en el diccionario y devolver el precio o "Unknown"
+    Args:
+        destination_city (str): Ciudad de destino
+        
+    Returns:
+        str: Precio del billete o "Unknown" si no existe
+    """
+    print(f"🔧 Tool get_ticket_price called for {destination_city}")
+    city = destination_city.lower()
     return ticket_prices.get(city, "Unknown")
+
+# Base de datos simulada de estados de vuelos
+flight_status_db = {
+    "FA101": "On Time",
+    "FA202": "Delayed 2 hours",
+    "FA303": "Cancelled",
+    "FA404": "Boarding"
+}
+
+# Función para obtener el estado de un vuelo
+def get_flight_status(flight_number):
+
+    print(f"🔧 Tool get_flight_status called for {flight_number}")
+    
+    return flight_status_db.get(flight_number, "Status Unknown")
