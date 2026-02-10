@@ -1,36 +1,43 @@
 """
 test_tool_schema.py
 -------------------
-Tests para el módulo tool_schema.py
+Tests para tool_schema.py (Práctica 1 + 2)
 """
 
 
 def test_imports():
-    """Test 1: Verificar que las importaciones funcionan"""
+    """Verificar importaciones"""
     print("=" * 60)
-    print("TEST 1: Importaciones")
+    print("TEST 1: Imports")
     print("=" * 60)
     
     try:
-        from google.genai import types
-        print("✅ google.genai.types importado")
+        from google.generativeai.types import FunctionDeclaration, Tool
+        print("✅ google.generativeai.types")
         
-        from tool_schema import tools, get_ticket_price_func
-        print("✅ tool_schema importado")
+        from tool_schema import (
+            tools, 
+            get_ticket_price_func, 
+            get_flight_status_func
+        )
+        print("✅ tool_schema")
         
         print("✅ TEST PASADO\n")
         return True
         
     except ImportError as e:
         print(f"❌ Error: {e}")
-        print("💡 Ejecuta: pip install google-genai")
         return False
 
 
-def test_function_name():
-    """Test 2: Verificar nombre de función"""
+# ============================================================================
+# TESTS DE LA HERRAMIENTA DE PRECIOS (PRÁCTICA 1)
+# ============================================================================
+
+def test_price_function_name():
+    """Verificar nombre de la función de precios"""
     print("=" * 60)
-    print("TEST 2: Nombre de Función")
+    print("TEST 2: Nombre de get_ticket_price")
     print("=" * 60)
     
     from tool_schema import get_ticket_price_func
@@ -40,86 +47,163 @@ def test_function_name():
     print("✅ TEST PASADO\n")
 
 
-def test_function_description():
-    """Test 3: Verificar descripción"""
+def test_price_function_parameter():
+    """Verificar parámetro destination_city"""
     print("=" * 60)
-    print("TEST 3: Descripción")
-    print("=" * 60)
-    
-    from tool_schema import get_ticket_price_func
-    
-    assert get_ticket_price_func.description
-    assert len(get_ticket_price_func.description) > 20
-    print(f"✅ Descripción presente ({len(get_ticket_price_func.description)} caracteres)")
-    print("✅ TEST PASADO\n")
-
-
-def test_parameters():
-    """Test 4: Verificar parámetros"""
-    print("=" * 60)
-    print("TEST 4: Parámetros")
+    print("TEST 3: Parámetro destination_city")
     print("=" * 60)
     
     from tool_schema import get_ticket_price_func
     
     params = get_ticket_price_func.parameters
     
-    # Verificar estructura
-    assert params["type"] == "object"
-    print("✅ Tipo: object")
-    
-    # Verificar destination_city existe
     assert "destination_city" in params["properties"]
-    print("✅ Parámetro 'destination_city' existe")
-    
-    # Verificar tipo de destination_city
     assert params["properties"]["destination_city"]["type"] == "string"
-    print("✅ Tipo de destination_city: string")
+    assert "destination_city" in params["required"]
+    
+    print("✅ destination_city existe, es string y es requerido")
+    print("✅ TEST PASADO\n")
+
+
+# ============================================================================
+# TESTS DE LA HERRAMIENTA DE ESTADOS (PRÁCTICA 2)
+# ============================================================================
+
+def test_status_function_name():
+    """Verificar nombre de la función de estados"""
+    print("=" * 60)
+    print("TEST 4: Nombre de get_flight_status")
+    print("=" * 60)
+    
+    from tool_schema import get_flight_status_func
+    
+    assert get_flight_status_func.name == "get_flight_status"
+    print(f"✅ Nombre: {get_flight_status_func.name}")
+    print("✅ TEST PASADO\n")
+
+
+def test_status_function_description():
+    """Verificar descripción de get_flight_status"""
+    print("=" * 60)
+    print("TEST 5: Descripción de get_flight_status")
+    print("=" * 60)
+    
+    from tool_schema import get_flight_status_func
+    
+    desc = get_flight_status_func.description.lower()
+    
+    assert "status" in desc, "❌ Debe mencionar 'status'"
+    assert "flight" in desc, "❌ Debe mencionar 'flight'"
+    
+    print(f"Descripción: {get_flight_status_func.description}")
+    print("✅ Menciona 'status' y 'flight'")
+    print("✅ TEST PASADO\n")
+
+
+def test_status_function_parameter():
+    """Verificar parámetro flight_number"""
+    print("=" * 60)
+    print("TEST 6: Parámetro flight_number")
+    print("=" * 60)
+    
+    from tool_schema import get_flight_status_func
+    
+    params = get_flight_status_func.parameters
+    
+    # Verificar que existe
+    assert "flight_number" in params["properties"], \
+        "❌ Falta el parámetro 'flight_number'"
+    print("✅ Parámetro 'flight_number' existe")
+    
+    # Verificar tipo
+    assert params["properties"]["flight_number"]["type"] == "string", \
+        "❌ flight_number debe ser string"
+    print("✅ Tipo: string")
     
     # Verificar que es requerido
-    assert "destination_city" in params["required"]
-    print("✅ destination_city es requerido")
+    assert "flight_number" in params["required"], \
+        "❌ flight_number debe ser requerido"
+    print("✅ Marcado como requerido")
     
     print("✅ TEST PASADO\n")
 
 
-def test_tools_list():
-    """Test 5: Verificar lista de herramientas"""
+# ============================================================================
+# TESTS DE LA LISTA DE HERRAMIENTAS
+# ============================================================================
+
+def test_tools_list_structure():
+    """Verificar que tools tiene ambas funciones"""
     print("=" * 60)
-    print("TEST 5: Lista de Herramientas")
+    print("TEST 7: Lista de Herramientas")
     print("=" * 60)
     
     from tool_schema import tools
-    from google.genai import types
     
     assert isinstance(tools, list)
-    assert len(tools) == 1
-    print(f"✅ tools es una lista con {len(tools)} elemento(s)")
+    assert len(tools) == 1  # En Gemini, todas las funciones van en UN Tool
+    print("✅ tools es una lista con 1 objeto Tool")
     
-    # Verificar que el primer elemento es un Tool
-    assert isinstance(tools[0], types.Tool)
-    print("✅ tools[0] es un objeto Tool")
+    # Verificar que el Tool tiene 2 function_declarations
+    tool = tools[0]
+    assert len(tool.function_declarations) == 2
+    print("✅ El Tool contiene 2 function_declarations")
     
-    # Verificar que tiene function_declarations
-    assert hasattr(tools[0], 'function_declarations')
-    assert len(tools[0].function_declarations) > 0
-    print(f"✅ Tiene {len(tools[0].function_declarations)} function_declaration(s)")
+    # Verificar nombres de las funciones
+    function_names = [f.name for f in tool.function_declarations]
+    assert "get_ticket_price" in function_names
+    assert "get_flight_status" in function_names
+    
+    print("✅ Contiene get_ticket_price y get_flight_status")
+    print("✅ TEST PASADO\n")
+
+
+def test_both_functions_registered():
+    """Verificar que ambas funciones están correctamente registradas"""
+    print("=" * 60)
+    print("TEST 8: Ambas Funciones Registradas")
+    print("=" * 60)
+    
+    from tool_schema import tools
+    
+    tool = tools[0]
+    functions = {f.name: f for f in tool.function_declarations}
+    
+    # Verificar get_ticket_price
+    assert "get_ticket_price" in functions
+    price_func = functions["get_ticket_price"]
+    assert "destination_city" in price_func.parameters["properties"]
+    print("✅ get_ticket_price registrada correctamente")
+    
+    # Verificar get_flight_status
+    assert "get_flight_status" in functions
+    status_func = functions["get_flight_status"]
+    assert "flight_number" in status_func.parameters["properties"]
+    print("✅ get_flight_status registrada correctamente")
     
     print("✅ TEST PASADO\n")
 
 
 if __name__ == "__main__":
-    print("\n🧪 TESTS DE tool_schema.py\n")
+    print("\n🧪 TESTS DE tool_schema.py (Práctica 1 + 2)\n")
     
     try:
         if not test_imports():
             print("\n❌ ABORTADO: Faltan dependencias\n")
             exit(1)
         
-        test_function_name()
-        test_function_description()
-        test_parameters()
-        test_tools_list()
+        # Tests Práctica 1
+        test_price_function_name()
+        test_price_function_parameter()
+        
+        # Tests Práctica 2
+        test_status_function_name()
+        test_status_function_description()
+        test_status_function_parameter()
+        
+        # Tests de integración
+        test_tools_list_structure()
+        test_both_functions_registered()
         
         print("=" * 60)
         print("🎉 TODOS LOS TESTS DE tool_schema.py PASARON")

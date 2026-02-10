@@ -1,40 +1,24 @@
 """
 main.py
 -------
-Punto de entrada principal del chatbot FlightAI.
-Maneja la conversación con Gemini usando function calling.
+PASO 4: Integración en el Chat
+Chatbot completo con function calling usando Gemini.
+Ahora soporta MÚLTIPLES HERRAMIENTAS (Práctica 2).
 """
 
 import os
-from google import genai
-from google.genai import types
+import google.generativeai as genai
 from dotenv import load_dotenv
 from tool_schema import tools
 from handler import handle_tool_call
 
 
-# System prompt - Define la personalidad del asistente
-SYSTEM_PROMPT = """You are a helpful assistant for an Airline called FlightAI.
-
-Your role:
-- Help users with flight ticket price inquiries
-- Always be polite and professional
-- Use the get_ticket_price function to retrieve accurate prices
-- Never invent or guess prices
-- If you don't have information, say so clearly
-
-When users greet you, introduce yourself as FlightAI.
-"""
+# System message
+SYSTEM_MESSAGE = "I am a helpful assistant for an Airline called FlightAI."
 
 
 def setup_gemini():
-    """
-    Configura la API de Gemini con la API key del .env
-    
-    Returns:
-        genai.Client: Cliente configurado
-    """
-    # Cargar variables de entorno
+    """Configura la API de Gemini"""
     load_dotenv()
     api_key = os.getenv("GEMINI_API_KEY")
     
@@ -44,107 +28,99 @@ def setup_gemini():
             "Crea un archivo .env con: GEMINI_API_KEY=tu_api_key"
         )
     
-    # Crear cliente de Gemini
-    client = genai.Client(api_key=api_key)
+    genai.configure(api_key=api_key)
     
-    return client
-
-
-def chat_loop():
-    """
-    Loop principal del chatbot interactivo
-    """
-    print("\n" + "="*60)
-    print("✈️  FLIGHTAI CHATBOT")
-    print("="*60)
-    print("Escribe 'salir' para terminar\n")
+    # ✅ INTENTAR CON DIFERENTES NOMBRES DE MODELO
+    model_names_to_try = [
+        "gemini-1.5-flash",           # Opción 1
+        "gemini-1.5-pro",             # Opción 2
+        "models/gemini-1.5-flash",    # Opción 3 (con prefijo)
+        "models/gemini-1.5-pro",      # Opción 4 (con prefijo)
+    ]
     
-    # Configurar cliente
+    for model_name in model_names_to_try:
+        try:
+            print(f"🔄 Intentando con modelo: {model_name}")
+            model = genai.GenerativeModel(
+                model_name=model_name,
+                tools=tools,
+                system_instruction=SYSTEM_MESSAGE
+            )
+            print(f"✅ Modelo cargado exitosamente: {model_name}\n")
+            return model
+        except Exception as e:
+            print(f"❌ Falló {model_name}: {str(e)[:50]}...")
+            continue
+    
+    raise ValueError(
+        "❌ No se pudo cargar ningún modelo.\n"
+        "Ejecuta 'python check_models.py' para ver modelos disponibles."
+    )
+
+def chat():
+    """Loop principal del chatbot"""
+    print("\n" + "="*70)
+    print("✈️  FLIGHTAI - CHATBOT CON MÚLTIPLES HERRAMIENTAS")
+    print("="*70)
+    print("\nPRUEBAS DE LA PRÁCTICA 2:")
+    print("1. Regresión: 'How much is a ticket to Tokyo?'")
+    print("2. Nueva funcionalidad: 'Is flight FA202 on time?'")
+    print("3. Combinada: 'Check status of FA303 and price to Berlin'")
+    print("\nEscribe 'exit' para salir\n")
+    print("="*70 + "\n")
+    
     try:
-        client = setup_gemini()
+        model = setup_gemini()
     except ValueError as e:
         print(f"❌ {e}")
         return
     
-    # Historial de mensajes
-    messages = []
+    chat_session = model.start_chat(enable_automatic_function_calling=False)
     
     while True:
-        # Obtener input del usuario
-        user_input = input("Tú: ").strip()
+        user_input = input("You: ").strip()
         
         if not user_input:
             continue
         
-        if user_input.lower() in ['salir', 'exit', 'quit']:
+        if user_input.lower() in ['exit', 'quit', 'salir']:
             print("\n👋 ¡Hasta luego!\n")
             break
         
         try:
-            # Agregar mensaje del usuario
-            messages.append(types.Content(
-                role="user",
-                parts=[types.Part(text=user_input)]
-            ))
+            response = chat_session.send_message(user_input)
             
-            # Enviar mensaje a Gemini
-            response = client.models.generate_content(
-                model="gemini-2.0-flash-lite",  # Modelo gratuito y rápido
-                contents=messages,
-                config=types.GenerateContentConfig(
-                    system_instruction=SYSTEM_PROMPT,
-                    tools=tools,
-                )
-            )
-            
-            # Verificar si Gemini quiere llamar a una función
+            # Verificar si hay tool calls
             if response.candidates[0].content.parts[0].function_call:
-                # Gemini solicitó una función
                 function_call = response.candidates[0].content.parts[0].function_call
                 
-                print(f"\n[🔧 Gemini llamando a: {function_call.name}]")
-                print(f"[📝 Argumentos: {dict(function_call.args)}]\n")
-                
-                # Agregar la respuesta del modelo al historial
-                messages.append(response.candidates[0].content)
+                print(f"\n🔧 Tool {function_call.name} called")
+                print(f"📝 Args: {dict(function_call.args)}")
                 
                 # Ejecutar la función
-                price, city = handle_tool_call(function_call)
+                result = handle_tool_call(function_call)
                 
-                print(f"[✅ Resultado: {price}]\n")
+                print(f"✅ Result: {result}\n")
                 
-                # Agregar resultado de la función al historial
-                messages.append(types.Content(
-                    role="user",
-                    parts=[types.Part(
-                        function_response=types.FunctionResponse(
-                            name=function_call.name,
-                            response={"price": price, "destination_city": city}
+                # Enviar resultado a Gemini
+                function_response = genai.protos.Content(
+                    parts=[
+                        genai.protos.Part(
+                            function_response=genai.protos.FunctionResponse(
+                                name=function_call.name,
+                                response=result
+                            )
                         )
-                    )]
-                ))
-                
-                # Enviar resultado a Gemini para que genere respuesta final
-                response = client.models.generate_content(
-                    model="gemini-2.0-flash-lite",
-                    contents=messages,
-                    config=types.GenerateContentConfig(
-                        system_instruction=SYSTEM_PROMPT,
-                        tools=tools,
-                    )
+                    ]
                 )
+                
+                response = chat_session.send_message(function_response)
             
-            # Agregar respuesta del asistente al historial
-            messages.append(response.candidates[0].content)
-            
-            # Mostrar respuesta final de Gemini
-            print(f"FlightAI: {response.text}\n")
+            print(f"\nFlightAI: {response.text}\n")
             
         except Exception as e:
             print(f"\n❌ Error: {e}\n")
-            import traceback
-            traceback.print_exc()
 
 
 if __name__ == "__main__":
-    chat_loop()
+    chat()
